@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Analytics Dashboard</title>
+    <meta name="description" content="Advanced data visualization for optimizing social media strategy">
+    <!-- Include Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <!-- Include ApexCharts for more advanced visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.35.5/dist/apexcharts.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>INSTAGRAM ANALYTICS DASHBOARD</h1>
+            <p>Advanced data visualization for optimizing social media strategy</p>
+        </div>
+
+        <div class="insights">
+            <h2>Key Insights</h2>
+            <div class="insights-grid">
+                <div class="insight-card">
+                    <h3>Best Post Type</h3>
+                    <p class="insight-value">{{ key_insights.best_post_type }}</p>
+                    <p class="insight-desc">This format generates the highest overall engagement</p>
+                </div>
+                <div class="insight-card">
+                    <h3>Best Day to Post</h3>
+                    <p class="insight-value">{{ key_insights.best_day }}</p>
+                    <p class="insight-desc">Your audience is most active on this day</p>
+                </div>
+                <div class="insight-card">
+                    <h3>Optimal Time</h3>
+                    <p class="insight-value">{{ key_insights.best_hour }}</p>
+                    <p class="insight-desc">Schedule posts at this hour for maximum reach</p>
+                </div>
+                <div class="insight-card">
+                    <h3>Best Topic</h3>
+                    <p class="insight-value">{{ key_insights.best_topic }}</p>
+                    <p class="insight-desc">Content in this category resonates most with your audience</p>
+                </div>
+                <div class="insight-card">
+                    <h3>Viral Threshold</h3>
+                    <p class="insight-value">{{ key_insights.viral_threshold }}</p>
+                    <p class="insight-desc">Posts exceeding this number of impressions are considered viral</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="view-selector">
+            <label for="analytics-view">Select Analytics View:</label>
+            <select id="analytics-view" class="select-dropdown">
+                <option value="engagement">Engagement by Post Type</option>
+                <option value="dayOfWeek">Day of Week Performance</option>
+                <option value="hourOfDay">Hour of Day Performance</option>
+                <option value="topicEngagement">Topic Engagement</option>
+                <option value="followsByPost">Follows by Post Type</option>
+                <option value="viralPosts">Viral Posts Analysis</option>
+                <option value="monthlyTrend">Monthly Trends</option>
+                <option value="weeklyTrend">Weekly Trends</option>
+            </select>
+        </div>
+
+        <!-- Analytics Views Container -->
+        <div id="analytics-container">
+            <!-- Engagement by Post Type View -->
+            <div id="engagement-view" class="analytics-view">
+                <div class="card">
+                    <h3>Engagement by Post Type</h3>
+                    <p>This chart compares how different post types perform across key engagement metrics. Identify which content formats drive the most engagement to optimize your content strategy.</p>
+                    
+                    <div class="tabs">
+                        <div class="tab-buttons">
+                            <button class="tab-button active" data-tab="engagement-bar">Bar Chart</button>
+                            <button class="tab-button" data-tab="engagement-line">Line Chart</button>
+                            <button class="tab-button" data-tab="engagement-pie">Distribution</button>
+                        </div>
+                        
+                        <div class="tab-content">
+                            <div id="engagement-bar" class="tab-pane active">
+                                <div class="chart-container">
+                                    <canvas id="postTypeBarChart"></canvas>
+                                </div>
+                                <div class="chart-analysis">
+                                    <h4>Analysis</h4>
+                                    <p id="post-type-bar-analysis">
+                                        This bar chart shows that <span class="accent" id="best-post-type">{{ key_insights.best_post_type }}</span> posts generate the highest engagement. 
+                                        Consider creating more content in this format to maximize audience interaction.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div id="engagement-line" class="tab-pane">
+                                <div class="chart-container">
+                                    <canvas id="postTypeLineChart"></canvas>
+                                </div>
+                                <div class="chart-analysis">
+                                    <h4>Trend Analysis</h4>
+                                    <p>
+                                        The line chart reveals the relationship between different metrics across post types.
+                                        Notice how impressions and engagement metrics tend to correlate for most post types.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div id="engagement-pie" class="tab-pane">
+                                <div class="chart-grid">
+                                    <div>
+                                        <h4>Impressions Distribution</h4>
+                                        <div class="chart-container-small">
+                                            <canvas id="postTypeImpressionsPieChart"></canvas>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h4>Likes Distribution</h4>
+                                        <div class="chart-container-small">
+                                            <canvas id="postTypeLikesPieChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="chart-analysis">
+                                    <h4>Distribution Analysis</h4>
+                                    <p>
+                                        These pie charts show how impressions and likes are distributed across different post types.
+                                        Note any discrepancies between impressions share and engagement share to identify high-converting content types.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Day of Week Performance View -->
+            <div id="dayOfWeek-view" class="analytics-view hidden">
+                <div class="card">
+                    <h3>Day of Week Performance</h3>
+                    <p>Analyze how your content performs on different days of the week. This helps identify optimal posting days when your audience is most active and engaged with your content.</p>
+                    
+                    <div class="tabs">
+                        <div class="tab-buttons">
+                            <button class="tab-button active" data-tab="day-bar">Bar Chart</button>
+                            <button class="tab-button" data-tab="day-line">Line Chart</button>
+                            <button class="tab-button" data-tab="day-heatmap">Heatmap</button>
+                        </div>
+                        
+                        <div class="tab-content">
+                            <div id="day-bar" class="tab-pane active">
+                                <div class="chart-container">
+                                    <canvas id="dayOfWeekBarChart"></canvas>
+                                </div>
+                                <div class="chart-analysis">
+                                    <h4>Analysis</h4>
+                                    <p>
+                                        <span class="accent" id="best-day">{{ key_insights.best_day }}</span> shows the highest engagement levels.
+                                        Consider scheduling your most important content on this day to maximize reach and engagement.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div id="day-line" class="tab-pane">
+                                <div class="chart-container">
+                                    <canvas id="dayOfWeekLineChart"></canvas>
+                                </div>
+                                <div class="chart-analysis">
+                                    <h4>Trend Analysis</h4>
+                                    <p>
+                                        The line chart shows the weekly pattern of your content performance.
+                                        Notice how engagement tends to peak midweek and drop during weekends.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div id="day-heatmap" class="tab-pane">
+                                <div class="day-heatmap-container">
+                                    <div id="dayHeatmap"></div>
+                                </div>
+                                <div class="chart-analysis">
+                                    <h4>Heatmap Analysis</h4>
+                                    <p>
+                                        This visualization highlights the relative performance of each day.
+                                        Darker colors indicate higher engagement levels, making it easy to identify your best posting days at a glance.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Hour of Day Performance View -->
+            <div id="hourOfDay-view" class="analytics-view hidden">
+                <div class="card">
+                    <h3>Hour of Day Performance</h3>
+                    <p>This time-based analysis shows when your audience is most active throughout the day. Use this data to schedule posts during peak engagement hours to maximize reach and impressions.</p>
+                    
+                    <div class="tabs">
+                        <div class="tab-buttons">
+                            <button class="tab-button active" data-tab="hour-line">Line Chart</button>
+                            <button class="tab-button" data-tab="hour-bar">Bar Chart</button>
+                            <button class="tab-button" data-tab="hour-peaks">Peak Hours</button>
+                        </div>
+                        
+                        <div class="tab-content">
+                            <div id="hour-line" class="tab-pane active">
+                                <div class="chart-container">
+                                    <canvas id="hourOfDayLineChart"></canvas>
+                                </div>
+                                <div class="chart-analysis">
+                                    <h4>Analysis</h4>
+                                    <p>
+                                        The optimal posting time appears to be around <span class="accent" id="best-hour">{{ key_insights.best_hour }}</span>,
+                                        when your audience is most active. Schedule your most important content during this time window for maximum visibility.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div id="hour-bar" class="tab-pane">
+                                <div class="chart-container">
+                                    <canvas id="hourOfDayBarChart"></canvas>
+                                </div>
+                                <div class="chart-analysis">
+                                    <h4>Hourly Comparison</h4>
+                                    <p>
+                                        The bar chart clearly shows the performance differences between hours.
+                                        Notice the morning and evening peak periods when your content receives the most attention.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div id="hour-peaks" class="tab-pane">
+                                <div class="peak-hours-container" id="peakHoursContainer">
+                                    <!-- Peak hours will be dynamically generated here -->
+                                </div>
+                                <div class="chart-analysis">
+                                    <h4>Peak Hours Analysis</h4>
+                                    <p>
+                                        These are your top performing hours of the day.
+                                        Create a posting schedule that targets these time slots to maximize your content's reach and engagement.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Topic Engagement View -->
+            <div id="topicEngagement-view" class="analytics-view hidden">
+                <div class="card">
+                    <h3>Topic Engagement</h3>
+                    <p>Discover which content topics resonate most with your audience across different engagement metrics. This insight helps you focus on creating more of the content your audience values most.</p>
+                    
+                    <div class="tabs">
+                        <div class="tab-buttons">
+                            <button class="tab-button active" data-tab="topic-bar">Bar Chart</button>
+                            <button class="tab-button" data-tab="topic-radar">Topic Cards</button>
+                            <button class="tab-button" data-tab="topic-horizontal">Horizontal Comparison</button>
+                        </div>
+                        
+                        <div class="tab-content">
+                            <div id="topic-bar" class="tab-pane active">
+                                <div class="chart-container">
+                                    <canvas id="topicBarChart"></canvas>
+                                </div>
+                                <div class="chart-analysis">
+                                    <h4>Analysis</h4>
+                                    <p>
+                                        <span class="accent" id="best-topic">{{ key_insights.best_topic }}</span> content generates the highest engagement.
+                                        Consider creating more content in this category to boost overall engagement rates.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div id="topic-radar" class="tab-pane">
+                                <div class="topic-cards-container" id="topicCardsContainer">
+                                    <!-- Topic cards will be dynamically generated here -->
+                                </div>
+                                <div class="chart-analysis">
+                                    <h4>Topic Cards</h4>
+                                    <p>
+                                        This visualization breaks down engagement metrics by topic.
+                                        Notice which topics drive specific types of engagement (likes vs. comments vs. saves).
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div id="topic-horizontal" class="tab-pane">
+                                <div class="chart-container">
+                                    <canvas id="topicHorizontalChart"></canvas>
+                                </div>
+                                <div class="chart-analysis">
+                                    <h4>Horizontal Comparison</h4>
+                                    <p>
+                                        This horizontal bar chart makes it easier to compare topics side by side.
+                                        It highlights how different topics perform across various engagement metrics.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Follows by Post Type View -->
+            <div id="followsByPost-view" class="analytics-view hidden">
+                <div class="card">
+                    <h3>Follows by Post Type</h3>
+                    <p>This chart reveals which post types are most effective at attracting new followers. Understanding this relationship helps optimize your content mix for audience growth.</p>
+                    
+                    <div class="tabs">
+                        <div class="tab-buttons">
+                            <button class="tab-button active" data-tab="follows-pie">Pie Chart</button>
+                            <button class="tab-button" data-tab="follows-bar">Bar Chart</button>
+                            <button class="tab-button" data-tab="follows-donut">Donut Chart</button>
+                        </div>
+                        
+                        <div class="tab-content">
+                            <div id="follows-pie" class="tab-pane active">
+                                <div class="chart-container">
+                                    <canvas id="followsPieChart"></canvas>
+                                </div>
+                                <div class="chart-analysis">
+                                    <h4>Analysis</h4>
+                                    <p>
+                                        <span class="accent" id="best-follower-type">{{ key_insights.best_growth_post_type }}</span> content drives the most follower growth.
+                                        Focus on this content type to accelerate your account growth.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div id="follows-bar" class="tab-pane">
+                                <div class="chart-container">
+                                    <canvas id="followsBarChart"></canvas>
+                                </div>
+                                <div class="chart-analysis">
+                                    <h4>Comparison</h4>
+                                    <p>
+                                        The bar chart clearly shows the difference in follower acquisition between post types.
+                                        Note the significant gap between your top-performing and lower-performing content types.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div id="follows-donut" class="tab-pane">
+                                <div class="chart-container">
+                                    <canvas id="followsDonutChart"></canvas>
+                                </div>
+                                <div class="chart-analysis">
+                                    <h4>Distribution Analysis</h4>
+                                    <p>
+                                        The donut chart shows the relative contribution of each post type to your follower growth.
+                                        This visualization helps identify which content types to prioritize for audience building.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Viral Posts Analysis View -->
+            <div id="viralPosts-view" class="analytics-view hidden">
+                <div class="card">
+                    <h3>Viral Posts Analysis</h3>
+                    <p>Examine the characteristics of your highest-performing posts. This analysis identifies patterns in viral content by topic and posting day to help replicate success.</p>
+                    
+                    <div class="tabs">
+                        <div class="tab-buttons">
+                            <button class="tab-button active" data-tab="viral-stacked">Stacked Bar</button>
+                            <button class="tab-button" data-tab="viral-heatmap">Heatmap</button>
+                            <button class="tab-button" data-tab="viral-summary">Summary</button>
+                        </div>
+                        
+                        <div class="tab-content">
+                            <div id="viral-stacked" class="tab-pane active">
+                                <div class="chart-container">
+                                    <canvas id="viralStackedChart"></canvas>
+                                </div>
+                                <div class="chart-analysis">
+                                    <h4>Analysis</h4>
+                                    <p id="viral-analysis">
+                                        This chart shows which days and topics are most likely to produce viral content.
+                                        Use this information to plan your content calendar for maximum viral potential.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div id="viral-heatmap" class="tab-pane">
+                                <div class="viral-heatmap-container">
+                                    <div id="viralHeatmap"></div>
+                                </div>
+                                <div class="chart-analysis">
+                                    <h4>Viral Heatmap</h4>
+                                    <p>
+                                        This visualization highlights which days of the week are most likely to produce viral content.
+                                        Darker colors indicate more viral posts, helping you identify optimal days for high-impact content.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div id="viral-summary" class="tab-pane">
+                                <div class="viral-summary-container">
+                                    <div class="viral-summary-section">
+                                        <h4>Viral Posts by Day</h4>
+                                        <div id="viralByDayContainer"></div>
+                                    </div>
+                                    <div class="viral-summary-section">
+                                        <h4>Viral Posts by Topic</h4>
+                                        <div id="viralByTopicContainer"></div>
+                                    </div>
+                                </div>
+                                <div class="chart-analysis">
+                                    <h4>Viral Content Summary</h4>
+                                    <p>
+                                        This analysis breaks down viral posts by day and topic.
+                                        Use these insights to plan your content calendar, focusing on the most promising day-topic combinations for viral potential.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Monthly Trends View -->
+            <div id="monthlyTrend-view" class="analytics-view hidden">
+                <div class="card">
+                    <h3>Monthly Trends</h3>
+                    <p>Track how your engagement metrics evolve throughout the year. Identify seasonal patterns and long-term trends to adapt your content strategy accordingly and capitalize on high-performing periods.</p>
+                    
+                    <div class="tabs">
+                        <div class="tab-buttons">
+                            <button class="tab-button active" data-tab="monthly-line">Line Chart</button>
+                            <button class="tab-button" data-tab="monthly-bar">Bar Chart</button>
+                            <button class="tab-button" data-tab="monthly-area">Area Chart</button>
+                        </div>
+                        
+                        <div class="tab-content">
+                            <div id="monthly-line" class="tab-pane active">
+                                <div class="chart-container">
+                                    <canvas id="monthlyLineChart"></canvas>
+                                </div>
+                                <div class="chart-analysis">
+                                    <h4>Analysis</h4>
+                                    <p id="monthly-analysis">
+                                        The chart shows seasonal patterns in your engagement metrics throughout the year.
+                                        Identify high-performing months and plan your content strategy accordingly.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div id="monthly-bar" class="tab-pane">
+                                <div class="chart-container">
+                                    <canvas id="monthlyBarChart"></canvas>
+                                </div>
+                                <div class="chart-analysis">
+                                    <h4>Monthly Comparison</h4>
+                                    <p>
+                                        The bar chart makes it easy to compare performance month by month.
+                                        Notice the seasonal patterns in your engagement metrics.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div id="monthly-area" class="tab-pane">
+                                <div class="chart-container">
+                                    <canvas id="monthlyAreaChart"></canvas>
+                                </div>
+                                <div class="chart-analysis">
+                                    <h4>Trend Visualization</h4>
+                                    <p>
+                                        The area chart emphasizes the overall trend in your metrics throughout the year.
+                                        This visualization helps identify long-term patterns and seasonal fluctuations in your account's performance.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Weekly Trends View -->
+            <div id="weeklyTrend-view" class="analytics-view hidden">
+                <div class="card">
+                    <h3>Weekly Trends</h3>
+                    <p>Analyze week-by-week performance to identify short-term trends and the impact of specific campaigns or content initiatives. This granular view helps fine-tune your content calendar.</p>
+                    
+                    <div class="tabs">
+                        <div class="tab-buttons">
+                            <button class="tab-button active" data-tab="weekly-line">Line Chart</button>
+                            <button class="tab-button" data-tab="weekly-bar">Bar Chart</button>
+                            <button class="tab-button" data-tab="weekly-comparison">Comparison</button>
+                        </div>
+                        
+                        <div class="tab-content">
+                            <div id="weekly-line" class="tab-pane active">
+                                <div class="chart-container">
+                                    <canvas id="weeklyLineChart"></canvas>
+                                </div>
+                                <div class="chart-analysis">
+                                    <h4>Analysis</h4>
+                                    <p id="weekly-analysis">
+                                        The line chart shows the week-by-week evolution of your engagement metrics.
+                                        Use this information to identify short-term trends and the impact of specific content initiatives.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div id="weekly-bar" class="tab-pane">
+                                <div class="chart-container">
+                                    <canvas id="weeklyBarChart"></canvas>
+                                </div>
+                                <div class="chart-analysis">
+                                    <h4>Weekly Comparison</h4>
+                                    <p>
+                                        The bar chart makes it easy to compare performance week by week.
+                                        Notice any spikes or dips that might correlate with specific content or campaigns.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div id="weekly-comparison" class="tab-pane">
+                                <div class="chart-grid">
+                                    <div>
+                                        <h4>Impressions vs. Likes</h4>
+                                        <div class="chart-container-small">
+                                            <canvas id="weeklyComparisonChart1"></canvas>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h4>Reach vs. Shares</h4>
+                                        <div class="chart-container-small">
+                                            <canvas id="weeklyComparisonChart2"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="chart-analysis">
+                                    <h4>Metric Correlation</h4>
+                                    <p>
+                                        These charts compare different metrics to identify correlations.
+                                        Notice how changes in impressions relate to changes in engagement metrics like likes and shares.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Instagram Analytics Dashboard | Data updated: {{ current_date }}</p>
+            <p>By Shawn</p>
+        </div>
+    </div>
+
+    <!-- Chart data from Flask -->
+    <script>
+        // Safely parse JSON data from Flask
+        try {
+            const chartData = {
+                postTypeData: JSON.parse('{{ post_type_data_json | safe }}'),
+                dayOfWeekData: JSON.parse('{{ day_of_week_data_json | safe }}'),
+                hourOfDayData: JSON.parse('{{ hour_of_day_data_json | safe }}'),
+                topicData: JSON.parse('{{ topic_data_json | safe }}'),
+                followsData: JSON.parse('{{ follows_data_json | safe }}'),
+                viralData: JSON.parse('{{ viral_data_json | safe }}'),
+                monthlyData: JSON.parse('{{ monthly_data_json | safe }}'),
+                weeklyData: JSON.parse('{{ weekly_data_json | safe }}'),
+                strategyData: JSON.parse('{{ strategy_data_json | safe }}'),
+                keyInsights: JSON.parse('{{ key_insights_json | safe }}')
+            };
+            
+            // Make chartData globally available
+            window.chartData = chartData;
+            console.log("Chart data loaded successfully:", chartData);
+        } catch (error) {
+            console.error("Error parsing chart data:", error);
+            // Provide fallback data if parsing fails
+            window.chartData = {
+                postTypeData: [],
+                dayOfWeekData: [],
+                hourOfDayData: [],
+                topicData: [],
+                followsData: [],
+                viralData: [],
+                monthlyData: [],
+                weeklyData: [],
+                strategyData: [],
+                keyInsights: {}
+            };
+        }
+    </script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

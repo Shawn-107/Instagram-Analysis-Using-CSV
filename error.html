@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - Instagram Analytics Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="error-container">
+        <h1>{{ error_title }}</h1>
+        <p>{{ error_message }}</p>
+        
+        {% if error_details %}
+        <div class="error-details">
+            <pre>{{ error_details }}</pre>
+        </div>
+        {% endif %}
+        
+        <a href="/" class="button">Refresh Page</a>
+    </div>
+</body>
+</html>
